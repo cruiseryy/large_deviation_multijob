@@ -2,7 +2,7 @@
 
 #--------------------------------------------------------------------------------------------#
 # this a shell script that prepares BCs and ICs for WRF simulation                           #
-# version V0.2 by xp53, Apr 17 2023                                                          #
+# version V0.3 by xp53, May 29 2023                                                          #
 # contact me via xp53@ + cornell.edu or nus.edu.sg                                           #
 #--------------------------------------------------------------------------------------------#
 # $1 -> the ith traj
