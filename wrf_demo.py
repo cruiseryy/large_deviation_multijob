@@ -1,6 +1,6 @@
 #--------------------------------------------------------------------------------------------#
 # A LDS (Large Deviation Sampler) class is defined here to execute the experiments           #
-# version V0.2 by xp53, Apr 17 2023                                                          #
+# version V0.3 by xp53, May 29 2023                                                          #
 #--------------------------------------------------------------------------------------------#
 
 import numpy as np
@@ -29,8 +29,6 @@ class LDS:
         self.K = K 
         # number of trajectories
         self.N = N
-        # to record the current timestep
-        self.timer = 0
         # T = number of dts
         self.T = T
         # to store intermediate variables:
@@ -44,8 +42,8 @@ class LDS:
         # traj and sub info 
         self.ic_pool = ic_pool 
         self.bc_pool = bc_pool
-
-        # pause = 1
+        
+        return
     
     def mkfolder(self) -> None:
         process = subprocess.Popen([self.path + '/mkfolder.sh'] + [str(self.N-1), self.path])
@@ -58,44 +56,78 @@ class LDS:
         end_date = start_date + timedelta(days=5*i)
         return end_date.strftime('%Y-%m-%d')
 
-    
     def run(self) -> None:
-        self.mkfolder()
-        self.ic = [[0]*self.T for _ in range(self.N)]
-        self.prev = []
-        for j in range(self.N):
-            self.ic[j][0] = np.random.randint(self.ic_pool) + 1981
-            source = self.path + '/wrflowinp/wrflowinp_' + str(self.ic[j][0])
-            dest = self.path + '/traj/' + '{:02d}'.format(j) + '/wrflowinp_d01'
-            cmd = 'cp -f ' + source + ' ' + dest
-            os.system(cmd)
-            self.prev.append(self.path + '/traj/' + '{:02d}'.format(j) + '/wrfrst_d01_' + str(self.ic[j][0]-1) + '-12-01_00:00:00')
-        while self.timer < self.T:
-            self.update(self.timer)
+
+        with open('timer.yml', 'r') as tmp_file:
+            tmp_data = yaml.safe_load(tmp_file)
+            self.timer = tmp_data['timer']
+            
+        if self.timer == 0:
+            self.mkfolder()
+            self.ic = [[0]*self.T for _ in range(self.N)]
+            np.savetxt(self.path + '/vars/ic.txt', self.ic)
+            np.savetxt(self.path + '/vars/path.txt', self.path)
+            for j in range(self.N):
+                self.ic[j][0] = np.random.randint(self.ic_pool) + 1981
+                source = self.path + '/wrflowinp/wrflowinp_' + str(self.ic[j][0])
+                dest = self.path + '/traj/' + '{:02d}'.format(j) + '/wrflowinp_d01'
+                cmd = 'cp -f ' + source + ' ' + dest
+                os.system(cmd)
+                self.prev.append(self.path + '/traj/' + '{:02d}'.format(j) + '/wrfrst_d01_' + str(self.ic[j][0]-1) + '-12-01_00:00:00')
+        else:
+            self.var_load()
             self.eval(self.timer)
-            if self.timer == self.T - 1:
-                break
             self.resample(self.timer)
             self.perturb(self.timer)
-            self.save_var()
-            print('interval {} done'.format(self.timer))
-            self.timer += 1
         
+        self.var_record()
+        self.update(self.timer)
+
+        with open('timer.yml', 'w') as tmp_file:
+            tmp_data['timer'] += 1
+            yaml.dump(tmp_data, tmp_file)
+        return
+    
+    def var_load(self):
+        self.prev = np.loadtxt(self.path + '/vars/prev.txt')
+        self.ic = np.loadtxt(self.path + '/vars/ic.txt')
+        self.bc_record = np.loadtxt(self.path + '/vars/bc_record.txt')
+        self.parent = np.loadtxt(self.path + '/vars/topo.txt')
+        self.R = np.loadtxt(self.path + '/vars/R.txt')
+        self.weights = np.loadtxt(self.path + '/vars/weights.txt')
+        return
+
+    def var_record(self):
+        np.savetxt(self.path + '/vars/prev.txt', self.prev)
+        np.savetxt(self.path + '/vars/ic.txt', self.ic)
+        np.savetxt(self.path + '/vars/bc_record.txt', self.bc_record)
+        np.savetxt(self.path + '/vars/topo.txt', self.parent)
+        np.savetxt(self.path + '/vars/R.txt', self.R)
+        np.savetxt(self.path + '/vars/weights.txt', self.weights)
         return
 
     def update(self, i) -> None:
-        processes = []
         for j in range(self.N):
             rb = np.random.randint(self.bc_pool)
             self.bc_record[j][i] = rb 
             bc_tool(self.ic[j][i], j, i, rb, self.path)
-            process = subprocess.Popen([self.path + '/tmp.sh'] + [str(j), str(i), str(self.ic[j][i]-1), self.path])
-            processes.append(process)
-        flag = 1
-        for sp in processes:
-            if sp.wait() != 0:
-                flag = 0 
-        print('all subprocesses done')
+        np.savetxt(self.path + '/vars/bc_record.txt', self.bc_record)
+        for k in range(4):
+            self.slave_pbs(k)
+        return
+    
+    def slave_pbs(self, k):
+        file0 = self.path + 'slave0.pbs'
+        with open(file0, 'r') as file:
+            lines = file.readlines()
+        lines[5] = lines[5].replace('0', str(k))  # Line 6
+        lines[6] = lines[6].replace('0', str(k))  # Line 7
+        lines[7] = lines[7].replace('0', str(k))  # Line 8
+        lines[11] = lines[11].replace('0', str(k))  # Line 12
+        tmpfile = self.path + 'slave.pbs'
+        with open(tmpfile, 'w') as file:
+            file.writelines(lines)
+        subprocess.run(['qsub', 'slave.pbs'])
         return
 
     def eval(self, i) -> None:

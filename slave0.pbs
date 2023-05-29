@@ -1,0 +1,12 @@
+#!/bin/bash
+#PBS -q normal
+#PBS -l select=4:ncpus=128:mem=256G
+#PBS -l walltime=24:00:00
+#PBS -P 11002299
+#PBS -e /home/users/nus/xp53/scratch/lds_test/wrf_demo/e0.txt
+#PBS -o /home/users/nus/xp53/scratch/lds_test/wrf_demo/o0.txt
+#PBS -N LDS_slave0
+module load anaconda3
+cd /home/users/nus/xp53/scratch/lds_test/wrf_demo/
+conda activate tmp10
+python slave.py 0
