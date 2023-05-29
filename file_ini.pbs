@@ -1,0 +1,12 @@
+#!/bin/bash
+#PBS -q normal
+#PBS -l select=1:ncpus=4:mem=16G
+#PBS -l walltime=24:00:00
+#PBS -P 11002299
+#PBS -e /home/users/nus/xp53/scratch/lds_test/wrf_demo/error.txt
+#PBS -o /home/users/nus/xp53/scratch/lds_test/wrf_demo/output.txt
+#PBS -N file_ini
+module load anaconda3
+cd /home/users/nus/xp53/scratch/lds_test/wrf_demo/
+conda activate tmp10
+python mv_ic.py

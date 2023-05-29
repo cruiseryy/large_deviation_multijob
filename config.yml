@@ -1,0 +1,32 @@
+#--------------------------------------------------------------------------------------------#
+# This file stores parameter info for running the large deviation algorithm w/ wrf           #
+# version V0.2 by xp53, Apr 17 2023                                                          #
+# contact me via xp53@ + cornell.edu or nus.edu.sg                                           #
+#--------------------------------------------------------------------------------------------#
+
+# path of working directory
+path: '/home/users/nus/xp53/scratch/lds_test/wrf_demo'
+
+# a reference value for computing deficit in the score (weight) function 
+# this is hard coded here since I do not expect it change frequently
+ref: 7.078
+
+# number of trajectories
+N: 32
+
+# the scaling coefficient in the score (weight) function
+K: 0.05
+
+# total number of simulation sub-intervals
+T: 2
+
+# size of the IC pool for bootsrapping 
+ic_pool: 9
+
+# total number of simulation sub-intervals
+bc_pool: 9
+
+
+
+
+
