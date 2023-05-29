@@ -18,26 +18,33 @@ class lds_slave:
 
     def __init__(self, k) -> None:
         self.k = int(k)
-        return
-    
-    def var_load(self):
-        self.prev = np.loadtxt('/vars/prev.txt')
-        self.ic = np.loadtxt('/vars/ic.txt')
-        self.bc_record = np.loadtxt('/vars/bc_record.txt')
-        self.parent = np.loadtxt('/vars/topo.txt')
-        self.R = np.loadtxt('/vars/R.txt')
-        self.weights = np.loadtxt('/vars/weights.txt')
-        return
-    
-    def update(self):
+        tmp_path_file = '/vars/path.txt'
+        with open(tmp_path_file, 'r') as file:
+            self.path = file.readline()
         with open('timer.yml', 'r') as tmp_file:
             tmp_data = yaml.safe_load(tmp_file)
             self.timer = tmp_data['timer']
-        self.path = np.loadtxt('/vars/path.txt')
+        return
+    
+    def var_load(self):
+        tmp_prev_file = self.path + '/vars/prev.txt'
+        with open(tmp_prev_file, 'r') as file:
+            lines = file.readlines()
+        self.prev = [line.strip() for line in lines]
+        self.ic = np.loadtxt(self.path + '/vars/ic.txt').astype(int)
+        self.bc_record = np.loadtxt(self.path + '/vars/bc_record.txt').astype(int)
+        self.parent = np.loadtxt(self.path + '/vars/topo.txt').astype(int)
+        self.R = np.loadtxt(self.path + '/vars/R.txt')
+        self.weights = np.loadtxt(self.path + '/vars/weights.txt')
+        pause = 1
+        return
+    
+    def update(self):
         self.var_load()
         processes = []
         for j in range(32):
-            process = subprocess.Popen([self.path + '/tmp.sh'] + [str(j), str(self.timer), str(self.ic[j][self.timer]-1), self.path])
+            rj = (self.k - 1)*32 + j 
+            process = subprocess.Popen([self.path + '/tmp.sh'] + [str(rj), str(self.timer), str(self.ic[rj][self.timer]-1), self.path])
             processes.append(process)
         flag = 1
         for sp in processes:
@@ -48,7 +55,5 @@ class lds_slave:
         
 if __name__ == '__main__':
     ss = lds_slave(sys.argv[1])
-    # print(ss.k)
-    # print(type(ss.k))
     ss.update()
 

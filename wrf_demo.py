@@ -63,22 +63,25 @@ class LDS:
             self.timer = tmp_data['timer']
             
         if self.timer == 0:
-            self.mkfolder()
+            self.mkfolder() 
+            self.prev = []
             self.ic = [[0]*self.T for _ in range(self.N)]
             np.savetxt(self.path + '/vars/ic.txt', self.ic)
-            np.savetxt(self.path + '/vars/path.txt', self.path)
+            tmp_path_file = self.path + '/vars/path.txt'
+            with open(tmp_path_file, 'w') as file:
+                file.write(self.path)
             for j in range(self.N):
                 self.ic[j][0] = np.random.randint(self.ic_pool) + 1981
                 source = self.path + '/wrflowinp/wrflowinp_' + str(self.ic[j][0])
                 dest = self.path + '/traj/' + '{:02d}'.format(j) + '/wrflowinp_d01'
                 cmd = 'cp -f ' + source + ' ' + dest
-                os.system(cmd)
+                os.system(cmd) 
                 self.prev.append(self.path + '/traj/' + '{:02d}'.format(j) + '/wrfrst_d01_' + str(self.ic[j][0]-1) + '-12-01_00:00:00')
         else:
             self.var_load()
-            self.eval(self.timer)
-            self.resample(self.timer)
-            self.perturb(self.timer)
+            self.eval(self.timer-1)
+            self.resample(self.timer-1)
+            self.perturb(self.timer-1)
         
         self.var_record()
         self.update(self.timer)
@@ -89,16 +92,23 @@ class LDS:
         return
     
     def var_load(self):
-        self.prev = np.loadtxt(self.path + '/vars/prev.txt')
-        self.ic = np.loadtxt(self.path + '/vars/ic.txt')
-        self.bc_record = np.loadtxt(self.path + '/vars/bc_record.txt')
-        self.parent = np.loadtxt(self.path + '/vars/topo.txt')
+        tmp_prev_file = self.path + '/vars/prev.txt'
+        with open(tmp_prev_file, 'r') as file:
+            lines = file.readlines()
+        self.prev = [line.strip() for line in lines]
+        self.ic = np.loadtxt(self.path + '/vars/ic.txt').astype(int)
+        self.bc_record = np.loadtxt(self.path + '/vars/bc_record.txt').astype(int)
+        self.parent = np.loadtxt(self.path + '/vars/topo.txt').astype(int)
         self.R = np.loadtxt(self.path + '/vars/R.txt')
         self.weights = np.loadtxt(self.path + '/vars/weights.txt')
+        pause = 1
         return
 
     def var_record(self):
-        np.savetxt(self.path + '/vars/prev.txt', self.prev)
+        tmp_prev_file = self.path + '/vars/prev.txt'
+        with open(tmp_prev_file, 'w') as file:
+            for line in self.prev:
+                file.write(line + '\n')
         np.savetxt(self.path + '/vars/ic.txt', self.ic)
         np.savetxt(self.path + '/vars/bc_record.txt', self.bc_record)
         np.savetxt(self.path + '/vars/topo.txt', self.parent)
@@ -110,14 +120,14 @@ class LDS:
         for j in range(self.N):
             rb = np.random.randint(self.bc_pool)
             self.bc_record[j][i] = rb 
-            bc_tool(self.ic[j][i], j, i, rb, self.path)
+            bc_tool(self.ic[j][i], j, i, rb, self.path) 
         np.savetxt(self.path + '/vars/bc_record.txt', self.bc_record)
         for k in range(4):
             self.slave_pbs(k)
         return
     
     def slave_pbs(self, k):
-        file0 = self.path + 'slave0.pbs'
+        file0 = self.path + '/slave0.pbs'
         with open(file0, 'r') as file:
             lines = file.readlines()
         lines[5] = lines[5].replace('0', str(k))  # Line 6
@@ -136,14 +146,13 @@ class LDS:
             end_file = self.path + '/traj/' + '{:02d}'.format(j) + '/wrfrst_d01_' + self.get_ymd(i+1, self.ic[j][i]-1) + '_00:00:00'
             # print('starting file is' + start_file)
             # print('\n ending file is ' + end_file)
-            start = xr.open_dataset(start_file)
-            end = xr.open_dataset(end_file)
+            start = xr.open_dataset(start_file) 
+            end = xr.open_dataset(end_file) 
             print('this is traj {} at time step {}'.format(j, i))
-            prcp_diff = np.sum(end['RAINNC'] - start['RAINNC'])
-            prcp_diff /= (start['RAINNC'].shape[1] * start['RAINNC'].shape[2])
-            print((self.K, self.ref, prcp_diff))
-            self.weights[j, i] = np.exp(self.K * (self.ref*5 - prcp_diff))
-
+            prcp_diff = np.sum(end['RAINNC'] - start['RAINNC']) 
+            prcp_diff /= (start['RAINNC'].shape[1] * start['RAINNC'].shape[2]) 
+            print((self.K, self.ref, prcp_diff)) 
+            self.weights[j, i] = np.exp(self.K * (self.ref*5 - prcp_diff)) 
         print(self.weights[:, i])
         self.R[i] = np.mean(self.weights[:, i])
         print(self.R[i])

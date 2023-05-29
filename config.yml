@@ -5,7 +5,7 @@
 #--------------------------------------------------------------------------------------------#
 
 # path of working directory
-path: '/Users/cruiseryy/Desktop/wrf_test/wrftest2/large_deviation_multijob/'
+path: '/home/climate/xp53/large_deviation2'
 
 # a reference value for computing deficit in the score (weight) function 
 # this is hard coded here since I do not expect it change frequently
