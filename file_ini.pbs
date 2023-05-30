@@ -1,12 +1,24 @@
 #!/bin/bash
 #PBS -q normal
-#PBS -l select=1:ncpus=4:mem=16G
-#PBS -l walltime=1:00:00
+#PBS -l select=1:ncpus=4:mem=8G
+#PBS -l walltime=2:00:00
 #PBS -P 11002299
 #PBS -e /scratch/users/nus/xp53/lds_multijob/large_deviation_multijob/ini_error.txt
 #PBS -o /scratch/users/nus/xp53/lds_multijob/large_deviation_multijob/ini_output.txt
 #PBS -N file_ini
-module load anaconda3
-cd /scratch/users/nus/xp53/lds_multijob/large_deviation_multijob/
-conda activate tmp10
-python mv_ic.py
+
+cd /scratch/users/nus/xp53/lds_multijob/large_deviation_multijob
+source_dir="/data/projects/11002298/long/xpwrf"
+target_dir="/scratch/users/nus/xp53/lds_multijob/large_deviation_multijob"
+
+for year in {1981..2020}; do
+    yrs=$[$year-1]
+    source_file="${source_dir}/${year}/wrfrst_d01_${yrs}-12-01_00:00:00"
+    target_file="${target_dir}/wrf_ic/wrfrst_d01_${yrs}-12-01_00:00:00"
+    cp "${source_file}" "${target_file}"
+    echo "${target_file}"
+    source_file2="${source_dir}/${year}/wrflowinp_d01"
+    target_file2="${target_dir}/wrflowinp/wrflowinp_${year}"
+    cp "${source_file2}" "${target_file2}"
+    echo "${target_file2}"
+done
