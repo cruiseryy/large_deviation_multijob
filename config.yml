@@ -5,7 +5,7 @@
 #--------------------------------------------------------------------------------------------#
 
 # path of working directory
-path: '/home/climate/xp53/large_deviation2'
+path: '/scratch/users/nus/xp53/lds_multijob/large_deviation_multijob'
 
 # a reference value for computing deficit in the score (weight) function 
 # this is hard coded here since I do not expect it change frequently
