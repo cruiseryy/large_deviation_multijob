@@ -1,12 +1,12 @@
 #!/bin/bash
 #PBS -q normal
-#PBS -l select=4:ncpus=128:mem=256G
+#PBS -l select=1:ncpus=8:mem=32G
 #PBS -l walltime=24:00:00
 #PBS -P 11002299
-#PBS -e /home/users/nus/xp53/scratch/lds_test/wrf_demo/error.txt
-#PBS -o /home/users/nus/xp53/scratch/lds_test/wrf_demo/output.txt
-#PBS -N LDS_4NODE
+#PBS -e /scratch/users/nus/xp53/lds_multijob/large_deviation_multijob/master_e.txt
+#PBS -o /scratch/users/nus/xp53/lds_multijob/large_deviation_multijob/master_o.txt
+#PBS -N LDS_MASTER
 module load anaconda3
-cd /home/users/nus/xp53/scratch/lds_test/wrf_demo/
+cd /scratch/users/nus/xp53/lds_multijob/large_deviation_multijob/
 conda activate tmp10
 python wrf_demo.py
