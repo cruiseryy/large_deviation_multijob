@@ -82,7 +82,7 @@ else
 fi
 
 echo "file modification done"
-mpirun -np 16 ./wrf.exe
+mpirun -np 8 ./wrf.exe
 echo "wrf run done"
 
 # sleep 10

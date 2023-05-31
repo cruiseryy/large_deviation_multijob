@@ -4,26 +4,22 @@
 #--------------------------------------------------------------------------------------------#
 
 import numpy as np
-import xarray as xr
-import os
-import bisect
 import yaml
 import subprocess
 import sys
-from bc_retriever import bc_tool
-from time import time
-from datetime import datetime, timedelta
 
 class lds_slave:
 
     def __init__(self, k) -> None:
         self.k = int(k)
-        tmp_path_file = '/vars/path.txt'
+        tmp_path_file = '/scratch/users/nus/xp53/lds_multijob/large_deviation_multijob/vars/path.txt'
         with open(tmp_path_file, 'r') as file:
             self.path = file.readline()
+        print(self.path)
         with open('timer.yml', 'r') as tmp_file:
-            tmp_data = yaml.safe_load(tmp_file)
-            self.timer = tmp_data['timer']
+            self.tmp_data = yaml.safe_load(tmp_file)
+            self.timer = self.tmp_data['timer']
+        print(self.timer)
         return
     
     def var_load(self):
@@ -43,9 +39,15 @@ class lds_slave:
         self.var_load()
         processes = []
         for j in range(32):
-            rj = (self.k - 1)*32 + j 
+            rj = self.k*32 + j 
             process = subprocess.Popen([self.path + '/tmp.sh'] + [str(rj), str(self.timer), str(self.ic[rj][self.timer]-1), self.path])
             processes.append(process)
+
+        if self.k == 3:
+            with open('timer.yml', 'w') as tmp_file:
+                self.tmp_data['timer'] += 1
+                yaml.dump(self.tmp_data, tmp_file)
+                
         flag = 1
         for sp in processes:
             if sp.wait() != 0:
@@ -54,6 +56,8 @@ class lds_slave:
         return 
         
 if __name__ == '__main__':
+    print(sys.argv[1])
+    print(type(sys.argv[1]))
     ss = lds_slave(sys.argv[1])
     ss.update()
 

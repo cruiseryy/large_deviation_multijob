@@ -85,10 +85,6 @@ class LDS:
         
         self.var_record()
         self.update(self.timer)
-
-        with open('timer.yml', 'w') as tmp_file:
-            tmp_data['timer'] += 1
-            yaml.dump(tmp_data, tmp_file)
         return
     
     def var_load(self):
@@ -134,7 +130,7 @@ class LDS:
         lines[6] = lines[6].replace('0', str(k))  # Line 7
         lines[7] = lines[7].replace('0', str(k))  # Line 8
         lines[11] = lines[11].replace('0', str(k))  # Line 12
-        tmpfile = self.path + 'slave.pbs'
+        tmpfile = self.path + '/slave.pbs'
         with open(tmpfile, 'w') as file:
             file.writelines(lines)
         subprocess.run(['qsub', 'slave.pbs'])

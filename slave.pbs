@@ -1,12 +1,12 @@
 #!/bin/bash
 #PBS -q normal
-#PBS -l select=4:ncpus=128:mem=256G
+#PBS -l select=4:ncpus=64:mem=256G
 #PBS -l walltime=24:00:00
 #PBS -P 11002299
-#PBS -e /scratch/users/nus/xp53/lds_multijob/large_deviation_multijob/slave_e0.txt
-#PBS -o /scratch/users/nus/xp53/lds_multijob/large_deviation_multijob/slave_o0.txt
-#PBS -N LDS_slave0
+#PBS -e /scratch/users/nus/xp53/lds_multijob/large_deviation_multijob/slave_e3.txt
+#PBS -o /scratch/users/nus/xp53/lds_multijob/large_deviation_multijob/slave_o3.txt
+#PBS -N LDS_slave3
 module load anaconda3
 cd /scratch/users/nus/xp53/lds_multijob/large_deviation_multijob/
 conda activate tmp10
-python slave.py 0
+python slave.py 3
