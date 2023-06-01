@@ -3,8 +3,8 @@
 #PBS -l select=1:ncpus=8:mem=32G
 #PBS -l walltime=24:00:00
 #PBS -P 11002299
-#PBS -e /scratch/users/nus/xp53/lds_multijob/large_deviation_multijob/master_e.txt
-#PBS -o /scratch/users/nus/xp53/lds_multijob/large_deviation_multijob/master_o.txt
+#PBS -e /scratch/users/nus/xp53/lds_multijob/large_deviation_multijob/log/master_e.txt
+#PBS -o /scratch/users/nus/xp53/lds_multijob/large_deviation_multijob/log/master_o.txt
 #PBS -N LDS_MASTER
 module load anaconda3
 cd /scratch/users/nus/xp53/lds_multijob/large_deviation_multijob/

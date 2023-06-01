@@ -140,8 +140,8 @@ class LDS:
         for j in range(self.N):
             start_file = self.prev[j]
             end_file = self.path + '/traj/' + '{:02d}'.format(j) + '/wrfrst_d01_' + self.get_ymd(i+1, self.ic[j][i]-1) + '_00:00:00'
-            # print('starting file is' + start_file)
-            # print('\n ending file is ' + end_file)
+            print('starting file is' + start_file)
+            print('\n ending file is ' + end_file)
             start = xr.open_dataset(start_file) 
             end = xr.open_dataset(end_file) 
             print('this is traj {} at time step {}'.format(j, i))
