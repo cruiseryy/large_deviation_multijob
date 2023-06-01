@@ -79,7 +79,7 @@ class LDS:
                 self.prev.append(self.path + '/traj/' + '{:02d}'.format(j) + '/wrfrst_d01_' + str(self.ic[j][0]-1) + '-12-01_00:00:00')
         else:
             self.var_load()
-            self.fix_check()
+            self.fix_check(self.timer-1)
             self.eval(self.timer-1)
             self.resample(self.timer-1)
             self.perturb(self.timer-1)
@@ -88,6 +88,22 @@ class LDS:
         self.update(self.timer)
         return
     
+    def fix_check(self, i):
+        for j in range(self.N):
+            end_file = self.path + '/traj/' + '{:02d}'.format(j) + '/wrfrst_d01_' + self.get_ymd(i+1, self.ic[j][i]-1) + '_00:00:00'
+            print(end_file)
+            if not os.path.exists(end_file):
+                fix_file = 'slavefix0.pbs'
+                with open(fix_file, 'r') as file:
+                    lines = file.readlines()
+                lines[7] = lines[7].replace('LDS_slavefix', 'LDS_slavefix' + '{:02d}'.format(j))
+                lines[9] = lines[9].replace('YYYY', '{:02d}'.format(j))
+                tmpfix= 'slavefix.pbs'
+                with open(tmpfix, 'w') as file:
+                    file.writelines(lines)
+        return 
+
+
     def var_load(self):
         tmp_prev_file = self.path + '/vars/prev.txt'
         with open(tmp_prev_file, 'r') as file:
