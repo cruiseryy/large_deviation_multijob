@@ -79,6 +79,7 @@ class LDS:
                 self.prev.append(self.path + '/traj/' + '{:02d}'.format(j) + '/wrfrst_d01_' + str(self.ic[j][0]-1) + '-12-01_00:00:00')
         else:
             self.var_load()
+            self.fix_check()
             self.eval(self.timer-1)
             self.resample(self.timer-1)
             self.perturb(self.timer-1)
