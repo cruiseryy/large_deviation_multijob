@@ -192,8 +192,11 @@ class LDS:
             self.ic[j][i+1] = self.ic[idx][i]
             source = self.path + '/traj/' + '{:02d}'.format(idx) + '/wrfrst_d01_' + self.get_ymd(i+1, self.ic[idx][i]-1) + '_00:00:00'
             tmp_filename = source[-30:]
+            destb = self.path + '/traj/' + '{:02d}'.format(j) + '/wrfrst_d01_' + self.get_ymd(i+1, self.ic[j][i]-1) + '_00:00:00'
             dest = self.path + '/traj/' + '{:02d}'.format(j) + '/' + tmp_filename
+            cmdb = 'cp -f ' + destb + ' ' + destb + 'b'
             cmd = 'cp -f ' + source + ' ' + dest
+            os.system(cmdb) # there is non-negligible possibility of the old ending rst file being replaced by a resampled rst file
             os.system(cmd)
             source2 = self.path + '/wrflowinp/wrflowinp_' + str(self.ic[j][i+1])
             dest2 = self.path + '/traj/' + '{:02d}'.format(j) + '/wrflowinp_d01'
