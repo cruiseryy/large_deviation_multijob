@@ -42,6 +42,7 @@ class LDS:
         # traj and sub info 
         self.ic_pool = ic_pool 
         self.bc_pool = bc_pool
+        self.fix_flag = 0 
         
         return
     
@@ -80,6 +81,9 @@ class LDS:
         else:
             self.var_load()
             self.fix_check(self.timer-1)
+            if self.fix_flag  == 1: 
+                print('entered traj fixing stage, master terminated')
+                return
             self.eval(self.timer-1)
             self.resample(self.timer-1)
             self.perturb(self.timer-1)
@@ -101,6 +105,8 @@ class LDS:
                 tmpfix= 'slavefix.pbs'
                 with open(tmpfix, 'w') as file:
                     file.writelines(lines)
+                subprocess.run(['qsub', 'slavefix.pbs'])
+                self.fix_flag = 1
         return 
 
 

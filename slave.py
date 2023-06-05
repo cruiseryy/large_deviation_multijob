@@ -38,8 +38,10 @@ class lds_slave:
     def update(self):
         self.var_load()
         processes = []
+        print('the current chunk index is {}'.format(self.k))
         for j in range(32):
             rj = self.k*32 + j 
+            print([self.path, rj, self.timer, self.ic[rj][self.timer]-1])
             process = subprocess.Popen([self.path + '/tmp.sh'] + [str(rj), str(self.timer), str(self.ic[rj][self.timer]-1), self.path])
             processes.append(process)
 
