@@ -5,12 +5,11 @@ from datetime import datetime, timedelta
 # import cartopy.crs as ccrs
 
 class ReadRainfall:
-    def __init__(self, n = 32, path = '00', T = 5) -> None:
+    def __init__(self, n = 32, path = 'path.txt', T = 5) -> None:
         self.n = n 
-        if path == '00':
-            self.path = '/scratch/users/nus/xp53/lds_multijob/large_deviation_multijob/vars/path.txt'
-        else:
-            self.path = ''
+        with open(path, 'r') as file:
+            self.path = file.readline()
+        print(self.path)
         self.ic = np.loadtxt(self.path + '/vars/ic.txt').astype(int)
         self.bc_record = np.loadtxt(self.path + '/vars/bc_record.txt').astype(int)
         self.parent = np.loadtxt(self.path + '/vars/topo.txt').astype(int)
@@ -36,7 +35,8 @@ class ReadRainfall:
             for t in range(self.T):
                 for i in range(6):
                     tmpymd = self.get_ymd(i = t*5 + i, icy = self.ic[j, t]-1)
-                    tmpfile = self.path + 'traj/' + '{:02d}'.format(j) + '/' + tmp_pre + tmpymd + tmp_suf
+                    tmpfile = self.path + '/traj/' + '{:02d}'.format(j) + '/' + tmp_pre + tmpymd + tmp_suf
+                    print(tmpfile)
                     tmp_rain = xr.open_dataset(tmpfile)['RAINNC'][0,:,:]
                     tmp_rain_flat = tmp_rain.reshape(tmp_rain.shape[0], -1)
                     rain[mark, :] = tmp_rain_flat
@@ -80,5 +80,5 @@ class ReadRainfall:
     
 
 if __name__ == "__main__":
-    test = ReadRainfall(n = 128)
+    test = ReadRainfall(n = 128, path = '/scratch/users/nus/xp53/lds_multijob/large_deviation_multijob/vars/path.txt')
     test.read_data()
