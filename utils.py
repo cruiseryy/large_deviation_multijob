@@ -37,8 +37,8 @@ class ReadRainfall:
                     tmpymd = self.get_ymd(i = t*5 + i, icy = self.ic[j, t]-1)
                     tmpfile = self.path + '/traj/' + '{:02d}'.format(j) + '/' + tmp_pre + tmpymd + tmp_suf
                     print(tmpfile)
-                    tmp_rain = xr.open_dataset(tmpfile)['RAINNC'][0,:,:]
-                    tmp_rain_flat = tmp_rain.reshape(tmp_rain.shape[0], -1)
+                    tmp_rain = xr.open_dataset(tmpfile)['RAINNC'][0,:,:].to_numpy()
+                    tmp_rain_flat = tmp_rain.reshape([120*160, ])
                     rain[mark, :] = tmp_rain_flat
                     mark += 1
             
