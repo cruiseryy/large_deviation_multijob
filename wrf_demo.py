@@ -10,7 +10,7 @@ import bisect
 import yaml
 import subprocess
 from bc_retriever import bc_tool
-from time import time
+import time
 from datetime import datetime, timedelta
 
 class LDS:
@@ -143,6 +143,7 @@ class LDS:
         np.savetxt(self.path + '/vars/bc_record.txt', self.bc_record)
         for k in range(4):
             self.slave_pbs(k)
+            time.sleep(200)
         return
     
     def slave_pbs(self, k):
