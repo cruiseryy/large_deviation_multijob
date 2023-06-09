@@ -80,5 +80,5 @@ class ReadRainfall:
     
 
 if __name__ == "__main__":
-    test = ReadRainfall(n = 128, path = '/scratch/users/nus/xp53/lds_multijob/large_deviation_multijob/vars/path.txt')
+    test = ReadRainfall(n = 128, path = '/scratch/users/nus/xp53/lds_multijob/large_deviation_multijob/vars/path.txt', T = 9)
     test.read_data()
