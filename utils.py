@@ -1,6 +1,7 @@
 import numpy as np
 import xarray as xr
 from datetime import datetime, timedelta
+import os
 # from matplotlib import pyplot as plt
 # import cartopy.crs as ccrs
 
@@ -37,6 +38,11 @@ class ReadRainfall:
                     tmpymd = self.get_ymd(i = t*5 + i, icy = self.ic[j, t]-1)
                     tmpfile = self.path + '/traj/' + '{:02d}'.format(j) + '/' + tmp_pre + tmpymd + tmp_suf
                     print(tmpfile)
+                    if not os.path.exists(tmpfile):
+                        filler = np.ones([120*160,]) * -999
+                        rain[mark, :] = filler
+                        mark += 1
+                        continue
                     tmp_rain = xr.open_dataset(tmpfile)['RAINNC'][0,:,:].to_numpy()
                     tmp_rain_flat = tmp_rain.reshape([120*160, ])
                     rain[mark, :] = tmp_rain_flat
@@ -47,6 +53,7 @@ class ReadRainfall:
             # rain_flat = tmp_rain.reshape(tmp_rain.shape[0], -1)
             # data_flat = np.loadtxt(dest)
             # data = data_flat.reshape(data_flat.shape[0], 120, 160)
+
             
         return
     
