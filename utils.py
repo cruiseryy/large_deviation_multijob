@@ -4,9 +4,8 @@ from datetime import datetime, timedelta
 import os
 # from matplotlib import pyplot as plt
 # import cartopy.crs as ccrs
-
-class ReadRainfall:
-    def __init__(self, n = 32, path = 'path.txt', T = 5) -> None:
+class var_retriever:
+    def __init__(self, path = 'vars/path.txt', n = 128) -> None:
         self.n = n 
         with open(path, 'r') as file:
             self.path = file.readline()
@@ -16,7 +15,6 @@ class ReadRainfall:
         self.parent = np.loadtxt(self.path + '/vars/topo.txt').astype(int)
         self.R = np.loadtxt(self.path + '/vars/R.txt')
         self.weights = np.loadtxt(self.path + '/vars/weights.txt')
-        self.T = T
         pause = 1
         return
     
@@ -25,37 +23,80 @@ class ReadRainfall:
         start_date = datetime.strptime(start, '%Y-%m-%d')
         end_date = start_date + timedelta(days=i)
         return end_date.strftime('%Y-%m-%d')
-    
-    def read_data(self):
+
+    def get_var(self, var_, T = 18):
         tmp_pre = 'wrfrst_d01_'
         tmp_suf = '_00:00:00'
         
         for j in range(self.n):
-            rain = np.zeros([self.T*6, 120*160])
-            mark = 0
-            for t in range(self.T):
+            data_array = []
+            for t in range(T):
                 for i in range(6):
-                    tmpymd = self.get_ymd(i = t*5 + i, icy = self.ic[j, t]-1)
+                    tmpymd = self.get_ymd(i = t*5 + i, icy = self.ic[j, t] - 1)
                     tmpfile = self.path + '/traj/' + '{:02d}'.format(j) + '/' + tmp_pre + tmpymd + tmp_suf
                     print(tmpfile)
                     if not os.path.exists(tmpfile):
-                        filler = np.ones([120*160,]) * -999
-                        rain[mark, :] = filler
-                        mark += 1
+                        data_array.append(data_array[-1])
                         continue
-                    tmp_rain = xr.open_dataset(tmpfile)['RAINNC'][0,:,:].to_numpy()
-                    tmp_rain_flat = tmp_rain.reshape([120*160, ])
-                    rain[mark, :] = tmp_rain_flat
-                    mark += 1
-            
-            np.savetxt(self.path + '/output/rainfall_' + str(j) +'.txt', rain)
+                    with xr.open_dataset(tmpfile) as ds:
+                        tdata = ds[var_]
+                        data_array.append(tdata)
+            concatenated_data = xr.concat(data_array, dim = 'Time')
+            concatenated_data.to_netcdf(self.path + '/output/' + str(j) + '_' + var_ + '.nc')
+        return 
 
-            # rain_flat = tmp_rain.reshape(tmp_rain.shape[0], -1)
-            # data_flat = np.loadtxt(dest)
-            # data = data_flat.reshape(data_flat.shape[0], 120, 160)
+
+# class ReadRainfall:
+#     def __init__(self, n = 32, path = 'path.txt', T = 5) -> None:
+#         self.n = n 
+#         with open(path, 'r') as file:
+#             self.path = file.readline()
+#         print(self.path)
+#         self.ic = np.loadtxt(self.path + '/vars/ic.txt').astype(int)
+#         self.bc_record = np.loadtxt(self.path + '/vars/bc_record.txt').astype(int)
+#         self.parent = np.loadtxt(self.path + '/vars/topo.txt').astype(int)
+#         self.R = np.loadtxt(self.path + '/vars/R.txt')
+#         self.weights = np.loadtxt(self.path + '/vars/weights.txt')
+#         self.T = T
+#         pause = 1
+#         return
+    
+#     def get_ymd(self, i, icy):
+#         start = str(icy) + '-12-01'
+#         start_date = datetime.strptime(start, '%Y-%m-%d')
+#         end_date = start_date + timedelta(days=i)
+#         return end_date.strftime('%Y-%m-%d')
+    
+#     def read_data(self):
+#         tmp_pre = 'wrfrst_d01_'
+#         tmp_suf = '_00:00:00'
+        
+#         for j in range(self.n):
+#             rain = np.zeros([self.T*6, 120*160])
+#             mark = 0
+#             for t in range(self.T):
+#                 for i in range(6):
+#                     tmpymd = self.get_ymd(i = t*5 + i, icy = self.ic[j, t]-1)
+#                     tmpfile = self.path + '/traj/' + '{:02d}'.format(j) + '/' + tmp_pre + tmpymd + tmp_suf
+#                     print(tmpfile)
+#                     if not os.path.exists(tmpfile):
+#                         filler = np.ones([120*160,]) * -999
+#                         rain[mark, :] = filler
+#                         mark += 1
+#                         continue
+#                     tmp_rain = xr.open_dataset(tmpfile)['RAINNC'][0,:,:].to_numpy()
+#                     tmp_rain_flat = tmp_rain.reshape([120*160, ])
+#                     rain[mark, :] = tmp_rain_flat
+#                     mark += 1
+            
+#             np.savetxt(self.path + '/output/rainfall_' + str(j) +'.txt', rain)
+
+#             # rain_flat = tmp_rain.reshape(tmp_rain.shape[0], -1)
+#             # data_flat = np.loadtxt(dest)
+#             # data = data_flat.reshape(data_flat.shape[0], 120, 160)
 
             
-        return
+#         return
     
     # def read_data2(self):
     #     tmp_pre = 'wrfrst_d01_'
@@ -87,5 +128,7 @@ class ReadRainfall:
     
 
 if __name__ == "__main__":
-    test = ReadRainfall(n = 128, path = '/scratch/users/nus/xp53/lds_multijob/large_deviation_multijob/vars/path.txt', T = 9)
-    test.read_data()
+    # test = ReadRainfall(n = 128, path = '/scratch/users/nus/xp53/lds_multijob/large_deviation_multijob/vars/path.txt', T = 9)
+    # test.read_data()
+    test = var_retriever()
+    test.get_var(var_ = 'RAINNC', T = 18)

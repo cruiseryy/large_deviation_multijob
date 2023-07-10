@@ -2,7 +2,7 @@
 #PBS -q normal
 #PBS -l select=1:ncpus=1:mem=4G
 #PBS -l walltime=1:00:00
-#PBS -P 11002299
+#PBS -P 11002298
 #PBS -e /home/users/nus/xp53/wrf_demo/wrf_bc/error.txt
 #PBS -o /home/users/nus/xp53/wrf_demo/wrf_bc/output.txt
 #PBS -N bc_slicer

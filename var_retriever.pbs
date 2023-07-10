@@ -1,12 +1,12 @@
 #!/bin/bash
 #PBS -q normal
 #PBS -l select=1:ncpus=4:mem=16G
-#PBS -l walltime=6:00:00
-#PBS -P 11002299
-#PBS -e /scratch/users/nus/xp53/lds_multijob/large_deviation_multijob/log/output_e.txt
-#PBS -o /scratch/users/nus/xp53/lds_multijob/large_deviation_multijob/log/output_o.txt
+#PBS -l walltime=16:00:00
+#PBS -P 11002298
+#PBS -e /scratch/users/nus/xp53/lds_multijob/large_deviation_multijob/log/var_retriever_e.txt
+#PBS -o /scratch/users/nus/xp53/lds_multijob/large_deviation_multijob/log/var_retriever_o.txt
 #PBS -N var_retriever
 module load anaconda3
 cd /scratch/users/nus/xp53/lds_multijob/large_deviation_multijob/
 conda activate tmp10
-python utils.py
+python var_gett.py
