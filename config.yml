@@ -15,7 +15,7 @@ ref: 7.078
 N: 128
 
 # the scaling coefficient in the score (weight) function
-K: 0.05
+K: 0 
 
 # total number of simulation sub-intervals
 T: 18

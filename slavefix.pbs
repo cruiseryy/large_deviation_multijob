@@ -5,8 +5,8 @@
 #PBS -P 11002298
 #PBS -e /scratch/users/nus/xp53/lds_multijob/large_deviation_multijob/log/slave_fixe.txt
 #PBS -o /scratch/users/nus/xp53/lds_multijob/large_deviation_multijob/log/slave_fixo.txt
-#PBS -N LDS_slavefix117
+#PBS -N LDS_slavefix121
 
-cd /scratch/users/nus/xp53/lds_multijob/large_deviation_multijob/traj/117/
-sed -i "32s/6/3/g" namelist.input
+cd /scratch/users/nus/xp53/lds_multijob/large_deviation_multijob/traj/121/
+# sed -i "32s/6/3/g" namelist.input
 mpirun -np 64 ./wrf.exe
