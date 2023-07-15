@@ -8,5 +8,5 @@
 #PBS -N LDS_slavefix121
 
 cd /scratch/users/nus/xp53/lds_multijob/large_deviation_multijob/traj/121/
-# sed -i "32s/6/3/g" namelist.input
+sed -i "32s/6/3/g" namelist.input
 mpirun -np 64 ./wrf.exe

@@ -107,6 +107,7 @@ class LDS:
                     file.writelines(lines)
                 subprocess.run(['qsub', 'slavefix.pbs'])
                 self.fix_flag = 1
+                print(end_file + ' NULL')
                 time.sleep(10)
         return 
 
